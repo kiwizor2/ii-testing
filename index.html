@@ -1,0 +1,387 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Инструкция тестировщику — ИИ лидерство</title>
+<style>
+  :root{
+    --bg:#ffffff; --bg-2:#F6F9FD; --bg-3:#EDF1F8; --bg-card:#ffffff;
+    --ink-900:#0C1B2E; --ink-700:#2B3B50; --ink-500:#5B6B82; --ink-400:#8A97A8; --ink-200:#DCE3EE; --ink-100:#EDF1F8;
+    --accent:#2D7DF0; --accent-2:#5E9CF0; --accent-50:#EAF3FE;
+    --green:#1FA971; --green-50:#E9F8F1;
+    --amber:#E8A317; --amber-50:#FDF4E3;
+    --red:#E5484D; --red-50:#FCEAEB;
+    --shadow: 0 2px 10px rgba(16,44,92,0.07);
+    --radius: 16px;
+    --font-display:'Unbounded','Manrope',system-ui,sans-serif;
+    --font-body:'Manrope',system-ui,-apple-system,'Segoe UI',sans-serif;
+    --font-mono:'JetBrains Mono',ui-monospace,'SF Mono',monospace;
+  }
+  @media (prefers-color-scheme: dark){
+    :root:not([data-theme="light"]){
+      --bg:#081328; --bg-2:#0E2147; --bg-3:#0E2147; --bg-card:#0E2147;
+      --ink-900:#F4F8FF; --ink-700:#CBDBF2; --ink-500:#AFC6E6; --ink-400:#6F8BB0; --ink-200:rgba(108,198,255,0.16); --ink-100:rgba(108,198,255,0.10);
+      --accent:#5E9CF0; --accent-2:#88BAF6; --accent-50:rgba(94,156,240,0.14);
+      --green:#2BD99A; --green-50:rgba(43,217,154,0.12);
+      --amber:#FBBF24; --amber-50:rgba(251,191,36,0.12);
+      --red:#EF6164; --red-50:rgba(239,97,100,0.12);
+      --shadow: 0 2px 12px rgba(0,0,0,0.30);
+    }
+  }
+  :root[data-theme="dark"]{
+    --bg:#081328; --bg-2:#0E2147; --bg-3:#0E2147; --bg-card:#0E2147;
+    --ink-900:#F4F8FF; --ink-700:#CBDBF2; --ink-500:#AFC6E6; --ink-400:#6F8BB0; --ink-200:rgba(108,198,255,0.16); --ink-100:rgba(108,198,255,0.10);
+    --accent:#5E9CF0; --accent-2:#88BAF6; --accent-50:rgba(94,156,240,0.14);
+    --green:#2BD99A; --green-50:rgba(43,217,154,0.12);
+    --amber:#FBBF24; --amber-50:rgba(251,191,36,0.12);
+    --red:#EF6164; --red-50:rgba(239,97,100,0.12);
+    --shadow: 0 2px 12px rgba(0,0,0,0.30);
+  }
+
+  *{box-sizing:border-box;}
+  html{ color-scheme: light dark; }
+  body{ margin:0; background:var(--bg); color:var(--ink-900); font-family:var(--font-body); line-height:1.55; padding-inline:16px; }
+  .wrap{ max-width:720px; margin:0 auto; padding-block: 28px 64px; }
+
+  .eyebrow{ font-family:var(--font-mono); font-size:12px; letter-spacing:.08em; text-transform:uppercase; color:var(--accent); font-weight:600; margin:0 0 8px; }
+  h1{ font-family:var(--font-display); font-weight:600; font-size:clamp(24px,5vw,32px); line-height:1.15; margin:0 0 10px; text-wrap:balance; letter-spacing:-0.01em; }
+  .lede{ color:var(--ink-500); font-size:15px; max-width:60ch; margin:0 0 24px; }
+
+  .meta-row{ display:flex; flex-wrap:wrap; gap:8px; margin-bottom:28px; }
+  .chip{ font-size:12.5px; font-weight:600; padding:6px 12px; border-radius:999px; background:var(--bg-3); color:var(--ink-700); border:1px solid var(--ink-200); display:inline-flex; align-items:center; gap:6px; }
+  .chip b{ color:var(--accent); font-weight:700; }
+
+  .card{ background:var(--bg-card); border:1px solid var(--ink-200); border-radius:var(--radius); padding:20px; box-shadow:var(--shadow); margin-bottom:16px; }
+  .card h2{ font-family:var(--font-display); font-size:17px; font-weight:600; margin:0 0 4px; letter-spacing:-.01em; }
+  .card .sub{ color:var(--ink-500); font-size:13.5px; margin:0 0 14px; }
+
+  .steps{ list-style:none; margin:0; padding:0; counter-reset:step; display:flex; flex-direction:column; gap:12px; }
+  .steps li{ counter-increment:step; display:grid; grid-template-columns:24px 1fr; gap:10px; font-size:14.5px; }
+  .steps li::before{ content:counter(step); width:24px; height:24px; border-radius:50%; background:var(--bg-3); border:1px solid var(--ink-200); color:var(--ink-700); font-family:var(--font-mono); font-size:12px; font-weight:700; display:flex; align-items:center; justify-content:center; flex:none; }
+
+  .promo{ background:linear-gradient(135deg, var(--accent-50), var(--bg-card)); border:1.5px dashed var(--accent); border-radius:14px; padding:16px 18px; margin:14px 0; }
+  .promo .code{ font-family:var(--font-mono); font-size:17px; font-weight:700; color:var(--accent); background:var(--bg-card); border:1px solid var(--ink-200); border-radius:8px; padding:6px 12px; display:inline-block; margin:6px 0 4px; word-break:break-all; }
+  .promo .terms{ font-size:12.5px; color:var(--ink-500); }
+
+  .module{ border:1px solid var(--ink-200); border-radius:14px; padding:16px; margin-bottom:12px; background:var(--bg-2); }
+  .module .tag{ display:inline-block; font-family:var(--font-mono); font-size:11px; font-weight:700; letter-spacing:.04em; text-transform:uppercase; padding:3px 8px; border-radius:6px; margin-bottom:8px; }
+  .tag.blue{ background:var(--accent-50); color:var(--accent); }
+  .tag.green{ background:var(--green-50); color:var(--green); }
+  .tag.amber{ background:var(--amber-50); color:var(--amber); }
+  .module h3{ font-family:var(--font-display); font-size:15.5px; font-weight:600; margin:0 0 6px; }
+  .module > p{ margin:0 0 14px; font-size:14px; color:var(--ink-700); }
+
+  .q{ margin-bottom:14px; }
+  .q:last-of-type{ margin-bottom:0; }
+  .q .qtext{ font-size:13.5px; font-weight:600; color:var(--ink-900); margin:0 0 8px; }
+  .q .opts{ display:flex; flex-wrap:wrap; gap:7px; }
+  .opt{ display:inline-flex; align-items:center; gap:6px; font-size:13px; background:var(--bg-card); border:1px solid var(--ink-200); border-radius:8px; padding:6px 10px; cursor:pointer; user-select:none; transition:.12s ease; }
+  .opt:has(input:checked){ border-color:var(--accent); background:var(--accent-50); color:var(--accent); font-weight:600; }
+  .opt input[type=checkbox]{ accent-color:var(--accent); width:15px; height:15px; margin:0; flex:none; }
+  .q .qcomment{ width:100%; margin-top:8px; border:1px solid var(--ink-200); border-radius:10px; padding:9px 11px; font-family:var(--font-body); font-size:13px; resize:vertical; min-height:44px; background:var(--bg-card); color:var(--ink-900); }
+  .q .qcomment::placeholder{ color:var(--ink-400); }
+
+  .module-comment{ margin-top:14px; padding-top:14px; border-top:1px dashed var(--ink-200); }
+  .module-comment label{ display:block; font-size:12.5px; color:var(--ink-500); margin-bottom:6px; }
+  .module-comment textarea{ width:100%; border:1px solid var(--ink-200); border-radius:10px; padding:10px 12px; font-family:var(--font-body); font-size:13.5px; resize:vertical; min-height:56px; background:var(--bg-card); color:var(--ink-900); }
+  .module-comment textarea::placeholder{ color:var(--ink-400); }
+
+  .copy-btn{ appearance:none; border:none; cursor:pointer; width:100%; padding:13px 16px; border-radius:12px; background:var(--accent); color:#fff; font-family:var(--font-body); font-weight:700; font-size:14.5px; display:flex; align-items:center; justify-content:center; gap:8px; }
+  .copy-btn:active{ transform:scale(0.99); }
+  .copy-status{ text-align:center; font-size:12.5px; color:var(--green); margin-top:8px; min-height:16px; }
+  .fallback-box{ margin-top:10px; }
+  .fallback-box textarea{ width:100%; min-height:120px; border:1px solid var(--ink-200); border-radius:10px; padding:10px 12px; font-family:var(--font-mono); font-size:12px; background:var(--bg-3); color:var(--ink-700); }
+
+  .inline-tag{ font-family:var(--font-mono); font-size:13px; background:var(--bg-3); border:1px solid var(--ink-200); border-radius:6px; padding:1px 6px; }
+
+  footer{ text-align:center; color:var(--ink-400); font-size:12.5px; margin-top:36px; }
+  @media (max-width:480px){ .card{ padding:16px; } }
+</style>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@500;600;700&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+</head>
+<body>
+<div class="wrap">
+  <p class="eyebrow">ИИ лидерство · инструкция тестировщику</p>
+  <h1>Спасибо, что соглашаетесь помочь</h1>
+  <p class="lede">Ниже — что именно посмотреть в приложении за 15 дней. У каждого пункта есть варианты ответа — отметьте, что подходит, а в конце соберите всё одной кнопкой и отправьте.</p>
+
+  <div class="meta-row">
+    <span class="chip">📱 приложение или веб-версия</span>
+    <span class="chip">15 дней</span>
+  </div>
+
+  <div class="card">
+    <h2>Как начать</h2>
+    <ol class="steps">
+      <li>Откройте ссылку на приложение, которую вам прислали — она открывается прямо в браузере, установка не нужна. Если у вас Android и удобнее отдельным приложением — оно есть в RuStore.</li>
+      <li>Пройдите обычную регистрацию — ничего платить не нужно.</li>
+      <li>Когда дойдёте до платной функции (например, «Глубокий отчёт»), в окне оплаты нажмите «Есть промокод» и введите код из раздела ниже.</li>
+      <li>Код действует 15 дней — всё, что попробуете в это время, бесплатно.</li>
+    </ol>
+  </div>
+
+  <div class="card">
+    <h2>Ваш промокод</h2>
+    <div class="promo">
+      <div class="code" id="promoCode">— уточните у того, с кем общались на интервью —</div>
+      <p class="terms">15 дней с даты выдачи · скидка 100% · вводится в окне оплаты по кнопке «Есть промокод»</p>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>Что тестировать</h2>
+    <p class="sub">Пройдите по порядку — от короткого к длинному. Модули C и D дольше всего, не обязательно проходить целиком, но зайдите минимум в 2–3 блока каждого трека, который вам подходит.</p>
+    <div id="modules"></div>
+  </div>
+
+  <div class="card">
+    <h2>Как отправить результаты</h2>
+    <p style="font-size:14.5px; color:var(--ink-700); margin:0 0 12px;">Нажмите кнопку — все отмеченные ответы и комментарии соберутся в один текст. Вставьте его в чат с тем, с кем общались на интервью (Telegram или MAX). Если что-то не поместилось в вопросы — допишите своими словами и приложите скриншот.</p>
+    <button class="copy-btn" id="copyBtn">📋 Скопировать мои ответы</button>
+    <p class="copy-status" id="copyStatus"></p>
+    <div class="fallback-box" id="fallbackBox" hidden>
+      <p style="font-size:12.5px; color:var(--ink-500); margin:0 0 6px;">Не скопировалось само — выделите текст ниже вручную и скопируйте:</p>
+      <textarea id="fallbackText" readonly onclick="this.select()"></textarea>
+    </div>
+    <p style="font-size:13px; color:var(--ink-500); margin:14px 0 0;">Присылайте, как только пройдёте хотя бы пару модулей — не нужно ждать конца 15 дней, можно отправить результаты несколько раз.</p>
+  </div>
+
+  <div class="card">
+    <p style="font-size:13.5px; color:var(--ink-500); margin:0;">Спасибо, что тратите на это время — ваш отзыв напрямую влияет на то, что мы поправим до общего запуска.</p>
+  </div>
+
+  <footer>ИИ лидерство · этот файл можно пересылать только внутри команды тестирования</footer>
+</div>
+
+<script>
+(function () {
+  var MODULES = [
+    {
+      key: 'A', tag: 'blue', time: '5–10 мин',
+      title: 'Квиз «ИИ готовность» (личный, 10 вопросов)',
+      desc: 'Базовая оценка — как вы лично используете AI сейчас.',
+      questions: [
+        { id: 'A1', text: 'Понятны ли вопросы и варианты ответов с первого чтения?', opts: ['Да', 'Нет', 'Отчасти'] },
+        { id: 'A2', text: 'Совпадает ли итоговый уровень с тем, что вы сами о себе думаете?', opts: ['Да', 'Нет', 'Отчасти'] },
+        { id: 'A3', text: 'Легко ли читается отчёт в конце?', opts: ['Да', 'Слишком длинный', 'Слишком общий'] },
+        { id: 'A4', text: 'Работают ли все кнопки после результата (сохранить, поделиться, дальше)?', opts: ['Да', 'Нет'] }
+      ]
+    },
+    {
+      key: 'B', tag: 'blue', time: '10–15 мин · если релевантно',
+      title: 'Корпоративный AI-аудит (15 вопросов)',
+      desc: 'Для тех, кто работает или проходит практику в компании. Если пока нигде не работаете — отвечайте «как если бы» или пропустите модуль.',
+      questions: [
+        { id: 'B1', text: 'Логично ли идут блоки (компания → процессы → данные → готовность)?', opts: ['Да', 'Нет'] },
+        { id: 'B2', text: 'Были вопросы, на которые сложно ответить без бухгалтера рядом?', opts: ['Да', 'Нет'] },
+        { id: 'B3', text: 'Понятен ли итоговый отчёт человеку без бизнес-бэкграунда?', opts: ['Да', 'Нет'] }
+      ]
+    },
+    {
+      key: 'C', tag: 'green', time: 'от 20 мин · пройти 2–3 блока',
+      title: 'Тренажёр — личный трек (10 тем × 10 блоков)',
+      desc: 'Курс с ИИ-наставником в формате чата: в каждом блоке — диалог, в конце — тест по блоку.',
+      questions: [
+        { id: 'C1', text: 'Отвечает ли наставник по существу вопроса, а не общими фразами?', opts: ['Да', 'Нет', 'Отчасти'] },
+        { id: 'C2', text: 'Не перескакивает ли он вперёд, не «закрывает» ли тему раньше, чем вы её прошли?', opts: ['Да', 'Нет'] },
+        { id: 'C3', text: 'Отвечает ли наставник в комфортном темпе?', opts: ['Комфортно', 'Слишком быстро', 'Слишком медленно'], comment: true, placeholder: 'Что именно было неудобно по темпу?' },
+        { id: 'C4', text: 'Не повторяет ли наставник одно и то же в разных блоках?', opts: ['Да, повторяет', 'Нет, всё по делу'] },
+        { id: 'C5', text: 'Корректно ли двигается прогресс-бар — синхронно с тем, что реально пройдено?', opts: ['Да', 'Нет'] },
+        { id: 'C6', text: 'Читается ли форматирование в сообщениях (жирный текст, списки)?', opts: ['Да', 'Нет, всё слипается'] },
+        { id: 'C7', text: 'Если дошли до теста блока — засчитывается ли результат сразу и понятно?', opts: ['Да', 'Нет', 'Не дошёл(-шла)'] }
+      ]
+    },
+    {
+      key: 'D', tag: 'green', time: 'от 15 мин · пройти 1–2 блока',
+      title: 'Тренажёр — корпоративный трек (5 тем × 5 блоков)',
+      desc: 'Тот же формат, но короче и с бизнес-фокусом.',
+      questions: [
+        { id: 'D1', text: 'Уместна ли глубина по сравнению с личным треком — не слишком «для галочки»?', opts: ['Да', 'Нет'] },
+        { id: 'D2', text: 'Есть ли те же проблемы, что и в личном треке (темп, повторы, прогресс)?', opts: ['Да', 'Нет'], comment: true, placeholder: 'Если да — какие именно' }
+      ]
+    },
+    {
+      key: 'E', tag: 'amber', time: 'по ходу всего теста',
+      title: 'Дизайн и удобство приложения',
+      desc: 'Смотрите на это фоном, пока проходите A–D, отдельно ничего проходить не нужно.',
+      questions: [
+        { id: 'E1', text: 'Одинаково ли удобно читать текст в светлой и тёмной темах?', opts: ['Да', 'Нет', 'Не пробовал(а)'] },
+        { id: 'E2', text: 'Понятна ли навигация внизу экрана?', opts: ['Да', 'Нет'] },
+        { id: 'E3', text: 'Ничего не съезжает и не обрезается на вашем экране?', opts: ['Всё в порядке', 'Есть проблемы'] },
+        { id: 'E4', text: 'Были моменты «нажал не туда, потому что было неочевидно»?', opts: ['Нет', 'Да'], comment: true, placeholder: 'Где именно?' },
+        { id: 'E5', text: 'Быстро ли загружаются страницы?', opts: ['Да', 'Нет'] },
+        { id: 'E6', text: 'Приятно ли выглядит приложение в целом?', opts: ['Да', 'Не очень'] },
+        { id: 'E7', text: 'Если пробовали чат ИИнфинити (свободный AI-чат вне тренажёра) — того же уровня, что тренажёр?', opts: ['Да', 'Нет', 'Не пробовал(а)'] }
+      ]
+    }
+  ];
+
+  var STORAGE_KEY = 'ii-tester-answers-v1';
+
+  function el(tag, cls, html) {
+    var e = document.createElement(tag);
+    if (cls) e.className = cls;
+    if (html !== undefined) e.innerHTML = html;
+    return e;
+  }
+
+  function render() {
+    var root = document.getElementById('modules');
+    MODULES.forEach(function (mod) {
+      var card = el('div', 'module');
+      card.appendChild(el('span', 'tag ' + mod.tag, mod.key + ' · ' + mod.time));
+      card.appendChild(el('h3', null, mod.title));
+      card.appendChild(el('p', null, mod.desc));
+
+      mod.questions.forEach(function (q) {
+        var qd = el('div', 'q');
+        qd.appendChild(el('p', 'qtext', q.text));
+        var opts = el('div', 'opts');
+        q.opts.forEach(function (optText) {
+          var label = el('label', 'opt');
+          var input = document.createElement('input');
+          input.type = 'checkbox';
+          input.name = q.id;
+          input.value = optText;
+          input.dataset.qid = q.id;
+          label.appendChild(input);
+          label.appendChild(document.createTextNode(optText));
+          opts.appendChild(label);
+        });
+        qd.appendChild(opts);
+        if (q.comment) {
+          var ta = document.createElement('textarea');
+          ta.className = 'qcomment';
+          ta.dataset.commentFor = q.id;
+          ta.placeholder = q.placeholder || 'Комментарий (необязательно)';
+          qd.appendChild(ta);
+        }
+        card.appendChild(qd);
+      });
+
+      var mc = el('div', 'module-comment');
+      var lbl = el('label', null, 'Что ещё заметили в этом модуле (необязательно)');
+      mc.appendChild(lbl);
+      var mta = document.createElement('textarea');
+      mta.dataset.moduleComment = mod.key;
+      mta.placeholder = 'Свободный комментарий по модулю ' + mod.key;
+      mc.appendChild(mta);
+      card.appendChild(mc);
+
+      root.appendChild(card);
+    });
+  }
+
+  function collectState() {
+    var state = { checks: {}, qComments: {}, modComments: {} };
+    document.querySelectorAll('#modules input[type=checkbox]').forEach(function (cb) {
+      if (cb.checked) {
+        state.checks[cb.dataset.qid] = state.checks[cb.dataset.qid] || [];
+        state.checks[cb.dataset.qid].push(cb.value);
+      }
+    });
+    document.querySelectorAll('#modules textarea[data-comment-for]').forEach(function (ta) {
+      if (ta.value.trim()) state.qComments[ta.dataset.commentFor] = ta.value.trim();
+    });
+    document.querySelectorAll('#modules textarea[data-module-comment]').forEach(function (ta) {
+      if (ta.value.trim()) state.modComments[ta.dataset.moduleComment] = ta.value.trim();
+    });
+    return state;
+  }
+
+  function applyState(state) {
+    if (!state) return;
+    document.querySelectorAll('#modules input[type=checkbox]').forEach(function (cb) {
+      var vals = state.checks && state.checks[cb.dataset.qid];
+      if (vals && vals.indexOf(cb.value) !== -1) cb.checked = true;
+    });
+    document.querySelectorAll('#modules textarea[data-comment-for]').forEach(function (ta) {
+      var v = state.qComments && state.qComments[ta.dataset.commentFor];
+      if (v) ta.value = v;
+    });
+    document.querySelectorAll('#modules textarea[data-module-comment]').forEach(function (ta) {
+      var v = state.modComments && state.modComments[ta.dataset.moduleComment];
+      if (v) ta.value = v;
+    });
+  }
+
+  function save() {
+    try { localStorage.setItem(STORAGE_KEY, JSON.stringify(collectState())); } catch (e) {}
+  }
+
+  function load() {
+    try {
+      var raw = localStorage.getItem(STORAGE_KEY);
+      if (raw) applyState(JSON.parse(raw));
+    } catch (e) {}
+  }
+
+  function buildSummary() {
+    var lines = ['ИИ лидерство — результаты тестирования', ''];
+    MODULES.forEach(function (mod) {
+      var modLines = [];
+      mod.questions.forEach(function (q) {
+        var checks = document.querySelectorAll('#modules input[name="' + q.id + '"]:checked');
+        if (checks.length === 0) return;
+        var vals = Array.prototype.map.call(checks, function (c) { return c.value; }).join(', ');
+        modLines.push('- ' + q.text + ' → ' + vals);
+        var comment = document.querySelector('textarea[data-comment-for="' + q.id + '"]');
+        if (comment && comment.value.trim()) modLines.push('  комментарий: ' + comment.value.trim());
+      });
+      var modComment = document.querySelector('textarea[data-module-comment="' + mod.key + '"]');
+      if (modComment && modComment.value.trim()) modLines.push('  ещё по модулю: ' + modComment.value.trim());
+      if (modLines.length) {
+        lines.push('Модуль ' + mod.key + ' — ' + mod.title);
+        lines = lines.concat(modLines, ['']);
+      }
+    });
+    if (lines.length <= 2) lines.push('(пока ничего не отмечено)');
+    return lines.join('\n');
+  }
+
+  function initPromo() {
+    var params = new URLSearchParams(window.location.search);
+    var code = params.get('code');
+    var elCode = document.getElementById('promoCode');
+    if (code) {
+      elCode.textContent = code.toUpperCase();
+    }
+  }
+
+  function initCopy() {
+    var btn = document.getElementById('copyBtn');
+    var status = document.getElementById('copyStatus');
+    var fallbackBox = document.getElementById('fallbackBox');
+    var fallbackText = document.getElementById('fallbackText');
+    btn.addEventListener('click', function () {
+      var text = buildSummary();
+      var done = function (ok) {
+        if (ok) {
+          status.textContent = 'Скопировано — вставьте в чат';
+          fallbackBox.hidden = true;
+        } else {
+          status.textContent = '';
+          fallbackText.value = text;
+          fallbackBox.hidden = false;
+        }
+      };
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(text).then(function () { done(true); }).catch(function () { done(false); });
+      } else {
+        done(false);
+      }
+    });
+  }
+
+  render();
+  load();
+  document.getElementById('modules').addEventListener('change', save);
+  document.getElementById('modules').addEventListener('input', save);
+  initPromo();
+  initCopy();
+})();
+</script>
+</body>
+</html>
