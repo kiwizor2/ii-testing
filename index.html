@@ -99,11 +99,22 @@
 
   footer{ text-align:center; color:var(--ink-400); font-size:12.5px; margin-top:36px; }
   @media (max-width:480px){ .card{ padding:16px; } }
+
+  .theme-toggle{
+    position:fixed; top:14px; right:14px; z-index:50;
+    width:40px; height:40px; border-radius:50%; border:1px solid var(--ink-200);
+    background:var(--bg-card); box-shadow:var(--shadow); cursor:pointer;
+    display:flex; align-items:center; justify-content:center; font-size:18px;
+    padding:0;
+  }
+  .theme-toggle:active{ transform:scale(0.94); }
 </style>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@500;600;700&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 </head>
 <body>
+<button class="theme-toggle" id="themeToggle" aria-label="Переключить тему" title="Светлая / тёмная тема">🌙</button>
+
 <div class="wrap">
   <p class="eyebrow">ИИ лидерство · инструкция тестировщику</p>
   <h1>Спасибо, что соглашаетесь помочь</h1>
@@ -396,12 +407,42 @@
     });
   }
 
+  function initTheme() {
+    var root = document.documentElement;
+    var btn = document.getElementById('themeToggle');
+    var STORAGE = 'ii-theme';
+
+    function effectiveTheme() {
+      var stored = root.getAttribute('data-theme');
+      if (stored) return stored;
+      return (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) ? 'dark' : 'light';
+    }
+
+    function updateIcon() {
+      btn.textContent = effectiveTheme() === 'dark' ? '☀️' : '🌙';
+    }
+
+    try {
+      var saved = localStorage.getItem(STORAGE);
+      if (saved === 'light' || saved === 'dark') root.setAttribute('data-theme', saved);
+    } catch (e) {}
+    updateIcon();
+
+    btn.addEventListener('click', function () {
+      var next = effectiveTheme() === 'dark' ? 'light' : 'dark';
+      root.setAttribute('data-theme', next);
+      try { localStorage.setItem(STORAGE, next); } catch (e) {}
+      updateIcon();
+    });
+  }
+
   render();
   load();
   document.getElementById('modules').addEventListener('change', save);
   document.getElementById('modules').addEventListener('input', save);
   initPromo();
   initCopy();
+  initTheme();
 })();
 </script>
 </body>
